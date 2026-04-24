@@ -1,4 +1,4 @@
-import { apiRequest } from "../../services/api";
+import { apiRequest } from "../../utils/api-client";
 import type { LoginCredentials, LoginResponse, MeResponse } from "../../types/api";
 
 export const loginRequest = (credentials: LoginCredentials) =>

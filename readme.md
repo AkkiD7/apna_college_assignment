@@ -1,49 +1,55 @@
 # DSA Sheet Tracker
 
-A full-stack MERN assignment project for the Apna College Full Stack Developer role. The app provides seeded login, a topic-wise DSA sheet, external learning links, and per-user progress persistence.
+A full-stack MERN assignment project for the Apna College Full Stack Developer role. Students can log in, browse a topic-wise DSA sheet, open learning resources, mark problems as complete, and resume their saved progress later.
 
 ## Tech Stack
 
 - Frontend: React, Vite, TypeScript, Tailwind CSS, React Router
-- Backend: Node.js, Express, TypeScript, MongoDB, Mongoose, JWT
-- Validation and testing: Zod, Vitest, Testing Library, Supertest-ready backend setup
-- Deployment target: AWS S3 + CloudFront for frontend, EC2 for backend, MongoDB Atlas for data
+- Backend: Node.js, Express, TypeScript, MongoDB, Mongoose
+- Auth: JWT, bcrypt password hashing
+- Validation: Zod
+- Deployment target: AWS S3 + CloudFront for frontend, EC2 for backend, MongoDB Atlas
 
 ## Features
 
-- Seeded demo login with JWT auth
-- Topic -> problem hierarchy with difficulty badges
-- Resource links for YouTube, LeetCode, and articles
-- Progress tracking stored per user in MongoDB
-- Loading, empty, and error states
-- Feature-based folder structure on both client and server
+- Secure seeded student login
+- Dashboard with overall and difficulty-wise progress summary
+- 10 DSA topics with 30 problems
+- Problem-level YouTube, LeetCode, and article links
+- Easy, Medium, and Hard difficulty labels
+- Checkbox-based progress tracking per problem
+- MongoDB-backed progress persistence across login sessions
+- Topic search and expandable chapter/problem view
 
 ## Demo Credentials
 
-- Email: `demo@apnacollege.com`
-- Password: `Pass@123`
+Email: `demo@apnacollege.com`  
+Password: `Pass@123`
+
+The login page also includes a **Use Demo Credentials** button for quick review.
 
 ## Project Structure
 
 ```text
 .
-|-- client
-|-- server
+|-- client   # React frontend
+|-- server   # Express + MongoDB backend
 `-- readme.md
 ```
 
 ## Local Setup
 
-### 1. Install dependencies separately
+Install dependencies separately:
 
 ```bash
-cd server && npm install
-cd ../client && npm install
+cd server
+npm install
+
+cd ../client
+npm install
 ```
 
-### 2. Configure environment variables
-
-Create `server/.env` from `server/.env.example`:
+Create `server/.env`:
 
 ```bash
 PORT=4000
@@ -55,13 +61,20 @@ SEED_DEMO_USER_EMAIL=demo@apnacollege.com
 SEED_DEMO_USER_PASSWORD=Pass@123
 ```
 
-Create `client/.env` from `client/.env.example`:
+Create `client/.env`:
 
 ```bash
 VITE_API_BASE_URL=http://localhost:4000/api
 ```
 
-### 3. Run the app
+Seed the demo user and DSA topics:
+
+```bash
+cd server
+npm run seed
+```
+
+Run the app:
 
 ```bash
 cd server
@@ -72,10 +85,23 @@ cd client
 npm run dev
 ```
 
-This starts:
-
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:4000`
+
+## Available Scripts
+
+From `server/`:
+
+- `npm run dev` - start the API in development mode
+- `npm run build` - compile TypeScript
+- `npm run start` - run the compiled server
+- `npm run seed` - upsert demo user and topic data
+
+From `client/`:
+
+- `npm run dev` - start Vite
+- `npm run build` - type-check and build frontend
+- `npm run preview` - preview production build
 
 ## API Endpoints
 
@@ -86,7 +112,7 @@ This starts:
 - `GET /api/progress`
 - `POST /api/progress`
 
-### Sample Progress Payload
+Sample progress payload:
 
 ```json
 {
@@ -95,63 +121,34 @@ This starts:
 }
 ```
 
-## Available Scripts
+## Architecture Notes
 
-From `server/`:
-
-- `npm run dev`
-- `npm run build`
-- `npm run start`
-- `npm run seed`
-- `npm run test`
-
-From `client/`:
-
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
-- `npm run test`
+- The frontend is organized by feature: auth, topics, and progress.
+- Topics are seeded into MongoDB from backend seed data.
+- The seed script uses upsert by topic slug, so topic changes can be applied without deleting user progress.
+- Progress is stored separately with a unique `userId + problemId` index.
+- Backend modules are separated by auth, topics, and progress with shared validation and error middleware.
 
 ## AWS Deployment Notes
 
-### Frontend
+Frontend:
 
-1. Run `npm install` inside `client/`.
-2. Build the React app with `npm run build`.
-3. Upload `client/dist` to an S3 bucket configured for static hosting.
-4. Put CloudFront in front of the bucket for HTTPS and caching.
-5. Set `VITE_API_BASE_URL` to the deployed backend URL before building.
+1. Set `VITE_API_BASE_URL` to the deployed backend API URL.
+2. Run `npm run build` inside `client/`.
+3. Upload `client/dist` to S3 static hosting.
+4. Put CloudFront in front of the S3 bucket.
 
-### Backend
+Backend:
 
-1. Provision a small EC2 instance.
-2. Install Node.js and clone the repo.
-3. Run `npm install` inside `server/`.
-4. Configure `server/.env` with production values.
-5. Run `npm run build` and start the API from `dist` with PM2 or systemd.
-6. Expose the instance through Nginx or directly via a load balancer if needed.
-7. Set `CLIENT_ORIGIN` to the CloudFront domain so CORS remains locked down.
+1. Provision an EC2 instance and install Node.js.
+2. Configure production environment variables in `server/.env`.
+3. Use MongoDB Atlas for `MONGODB_URI`.
+4. Run `npm install`, `npm run build`, and `npm run seed`.
+5. Start `dist/server.js` with PM2 or systemd.
+6. Set `CLIENT_ORIGIN` to the deployed CloudFront/frontend URL.
 
-### Database
+## Assignment Deliverables
 
-1. Create a MongoDB Atlas cluster.
-2. Add the EC2 public IP to the Atlas allowlist.
-3. Store the Atlas connection string in `MONGODB_URI`.
-
-## Architecture Notes
-
-- Topics and problems are seeded into MongoDB instead of being hardcoded into the frontend.
-- Progress is stored separately with a unique index on `userId + problemId`.
-- The current implementation is optimized for assignment speed while keeping the architecture scalable.
-- For larger scale, topic data can be cached and progress queries can be indexed further or moved behind a dedicated service.
-
-## Test Coverage
-
-The repo includes focused tests for:
-
-- Auth success and failure flows
-- Topic ordering logic
-- Auth middleware protection
-- Progress update semantics
-- Login UI submission
-- Problem completion interactions
+- Complete source code
+- AWS frontend/backend deployment link
+- 2-3 minute screen recording with audio explaining the project

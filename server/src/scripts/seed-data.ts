@@ -21,13 +21,19 @@ const addProblemOrder = (topics: TopicSeed[]): Array<{
   }));
 
 export const seedTopics = async () => {
-  const totalTopics = await Topic.countDocuments();
+  const topics = addProblemOrder(topicSeed);
 
-  if (totalTopics > 0) {
-    return;
-  }
-
-  await Topic.insertMany(addProblemOrder(topicSeed));
+  await Topic.bulkWrite(
+    topics.map((topic) => ({
+      updateOne: {
+        filter: { slug: topic.slug },
+        update: {
+          $set: topic
+        },
+        upsert: true
+      }
+    }))
+  );
 };
 
 export const seedDemoUser = async () => {

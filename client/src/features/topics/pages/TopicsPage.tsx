@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useTracker } from '../features/tracker/TrackerContext';
-import { LoadingScreen } from '../components/LoadingScreen';
+import { useProgress } from '../../progress/ProgressContext';
+import { LoadingScreen } from '../../../components/LoadingScreen';
 
 export const TopicsPage = () => {
-  const { topics, completedProblemIds, toggleProgress, isSavingProblemId, stats, isLoading, searchQuery } = useTracker();
+  const { topics, completedProblemIds, toggleProgress, isSavingProblemId, stats, isLoading, searchQuery } = useProgress();
   const location = useLocation();
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
 

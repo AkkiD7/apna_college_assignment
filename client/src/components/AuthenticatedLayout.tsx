@@ -1,11 +1,10 @@
-import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
-import { useTracker } from '../features/tracker/TrackerContext';
+import { useProgress } from '../features/progress/ProgressContext';
 
 export const AuthenticatedLayout = () => {
   const { logout } = useAuth();
-  const { searchQuery, setSearchQuery } = useTracker();
+  const { searchQuery, setSearchQuery } = useProgress();
   const location = useLocation();
 
   const isTopicsPage = location.pathname === '/topics';
@@ -14,8 +13,6 @@ export const AuthenticatedLayout = () => {
     const path = location.pathname;
     if (path === '/dashboard' || path === '/') return 'Overview';
     if (path === '/topics') return 'Topics';
-    if (path === '/progress') return 'Progress';
-    if (path === '/profile') return 'Profile';
     return '';
   };
 
@@ -28,7 +25,6 @@ export const AuthenticatedLayout = () => {
           <div className="px-6 mb-8 flex items-center gap-element-gap text-indigo-500 font-bold text-xl tracking-tight">
             <span className="material-symbols-outlined text-indigo-500">code</span>
             <span>DSA Tracker</span>
-            <span className="text-xs text-on-surface-variant font-normal ml-2">v1.0.4</span>
           </div>
           {/* Nav Links */}
           <ul className="flex flex-col gap-1 font-['Inter'] text-sm font-medium">
@@ -60,36 +56,17 @@ export const AuthenticatedLayout = () => {
                 Topics
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to="/progress"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 pl-4 py-3 transition-all duration-150 ${isActive
-                    ? 'text-indigo-500 border-l-2 border-indigo-500 bg-[#161616]'
-                    : 'text-neutral-400 hover:bg-[#161616] hover:text-neutral-100'
-                  }`
-                }
-              >
-                <span className="material-symbols-outlined text-[20px]">analytics</span>
-                Progress
-              </NavLink>
-            </li>
           </ul>
         </div>
-        {/* Footer info */}
-        <div className="px-2 pb-4">
-          <NavLink
-            to="/profile"
-            className={({ isActive }) =>
-              `flex items-center gap-3 pl-4 py-3 transition-all duration-150 rounded-md mx-2 ${isActive
-                ? 'text-indigo-500 bg-[#161616] border border-indigo-500/30'
-                : 'text-neutral-400 hover:bg-[#161616] hover:text-neutral-100'
-              }`
-            }
+        <div className="px-4">
+          <button
+            type="button"
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md border border-[#2a2a2a] text-neutral-400 hover:bg-[#161616] hover:text-neutral-100 transition-all duration-150"
           >
-            <span className="material-symbols-outlined text-[20px]">account_circle</span>
-            <span className="font-medium">Profile</span>
-          </NavLink>
+            <span className="material-symbols-outlined text-[20px]">logout</span>
+            <span className="font-medium">Logout</span>
+          </button>
         </div>
       </nav>
 

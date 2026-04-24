@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { fetchProgress, fetchTopics, updateProgressRequest } from '../topics/topics-api';
-import type { Topic, Problem } from '../../types/api';
+import { fetchTopics } from '../topics/topics-api';
+import { fetchProgress, updateProgressRequest } from './progress-api';
+import type { Topic } from '../../types/api';
 
-interface TrackerContextValue {
+interface ProgressContextValue {
   topics: Topic[];
   completedProblemIds: string[];
   isLoading: boolean;
@@ -22,9 +23,9 @@ interface TrackerContextValue {
   };
 }
 
-const TrackerContext = createContext<TrackerContextValue | undefined>(undefined);
+export const ProgressContext = createContext<ProgressContextValue | undefined>(undefined);
 
-export const TrackerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuth();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [completedProblemIds, setCompletedProblemIds] = useState<string[]>([]);
@@ -45,7 +46,7 @@ export const TrackerProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setTopics(topicsRes);
       setCompletedProblemIds(progressRes.completedProblemIds);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to load tracker data');
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to load progress data');
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +84,8 @@ export const TrackerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const stats = useMemo(() => {
     const allProblems = topics.flatMap((t) => t.problems);
-    const solvedSet = new Set(completedProblemIds);
+    const activeProblemIds = new Set(allProblems.map((problem) => problem.id));
+    const solvedSet = new Set(completedProblemIds.filter((id) => activeProblemIds.has(id)));
 
     const initial = {
       total: allProblems.length,
@@ -116,7 +118,7 @@ export const TrackerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [topics, completedProblemIds]);
 
   return (
-    <TrackerContext.Provider
+    <ProgressContext.Provider
       value={{
         topics,
         completedProblemIds,
@@ -130,12 +132,12 @@ export const TrackerProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }}
     >
       {children}
-    </TrackerContext.Provider>
+    </ProgressContext.Provider>
   );
 };
 
-export const useTracker = () => {
-  const context = useContext(TrackerContext);
-  if (!context) throw new Error('useTracker must be used within TrackerProvider');
+export const useProgress = () => {
+  const context = useContext(ProgressContext);
+  if (!context) throw new Error('useProgress must be used within ProgressProvider');
   return context;
 };

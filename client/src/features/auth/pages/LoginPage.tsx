@@ -2,17 +2,22 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 
-import { useAuth } from "../features/auth/AuthContext";
-import type { LoginCredentials } from "../types/api";
+import { useAuth } from "../AuthContext";
+import type { LoginCredentials } from "../../../types/api";
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
 
+const demoCredentials: LoginCredentials = {
+  email: "demo@apnacollege.com",
+  password: "Pass@123"
+};
+
 export const LoginPage = () => {
   const { isAuthenticated, login } = useAuth();
   const [formState, setFormState] = useState<LoginCredentials>({
-    email: "demo@apnacollege.com",
-    password: "Pass@123"
+    email: "",
+    password: ""
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +49,11 @@ export const LoginPage = () => {
     }
   };
 
+  const useDemoCredentials = () => {
+    setFormState(demoCredentials);
+    setErrorMessage("");
+  };
+
   return (
     <div className="bg-surface-container-lowest min-h-screen flex items-center justify-center p-4 antialiased selection-primary">
       {/* Main Login Card */}
@@ -59,6 +69,21 @@ export const LoginPage = () => {
 
         {/* Form */}
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+          <div className="rounded-lg border border-surface-container-high bg-surface-container-low px-4 py-3 flex flex-col gap-3">
+            <div>
+              <p className="font-label-caps text-label-caps text-on-surface-variant uppercase">Demo Credentials</p>
+              <p className="font-body-sm text-body-sm text-on-surface mt-1">Email: {demoCredentials.email}</p>
+              <p className="font-body-sm text-body-sm text-on-surface">Password: {demoCredentials.password}</p>
+            </div>
+            <button
+              type="button"
+              onClick={useDemoCredentials}
+              className="w-fit rounded-md border border-primary/40 px-3 py-1.5 font-body-sm text-body-sm text-primary hover:bg-primary/10 transition-all duration-150"
+            >
+              Use Demo Credentials
+            </button>
+          </div>
+
           <div className="flex flex-col gap-element-gap">
             <label className="font-label-caps text-label-caps text-on-surface-variant uppercase" htmlFor="email">
               Email Address
@@ -87,7 +112,7 @@ export const LoginPage = () => {
               type="password"
               value={formState.password}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder="Enter password"
               required
             />
           </div>
